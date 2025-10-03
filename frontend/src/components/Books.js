@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-// import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 function Books() {
 
@@ -11,18 +11,19 @@ function Books() {
       .then(res => setBooks(res.data))
       .catch(err => console.error("Erreur lors du fetch :", err));
     }, []);
+
   return (
     <div>
         <h1 className="h2 ">Notre collection de livres</h1>
-
+        <Link to="/create" className='btn btn-success mt-4'> Ajouter un livre </Link>
         <table className="table table-bordered mt-5">
             <thead>
                 <tr>
                     <th>Titre</th>
                     <th>Auteur</th>
-                    <th>Année de parution</th>
+                    <th>Parution</th>
                     <th>Catégorie</th>
-                    <th>Date de création</th>
+                    <th>Création</th>
                     <th>Action</th>
                     
                 </tr>

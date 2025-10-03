@@ -1,4 +1,3 @@
-
 // Import d'express
 const express = require("express"); //importe Express pour créer un serveur web et gérer les routes HTTP facilement.
 
@@ -22,7 +21,6 @@ const corsOptions = {
 app.use(cors(corsOptions));//pour plus de précision mais app.use(cors());faisable
 app.use(express.json()); // Middleware pour lire le JSON envoyé dans le body
 
-
 // Connexion avec la BDD
 const database = mysql.createConnection({//createConnection crée connexion unique à la bdd
     host:"localhost",
@@ -40,7 +38,7 @@ database.connect(err => {
     }
 });
 
-// Route GET de base
+// Route GET pour envoyer et afficher les donnée de la table books
 app.get("/", (req, res) => {
 
   // res.send("Je suis un get avec res.send() ou res.json() et je m'affiche dans dans le naviguateur.");
@@ -56,6 +54,35 @@ app.get("/", (req, res) => {
 
    })
 });
+
+// Route POST pour créer un étudiant
+app.post('/create', (req, res) => {
+  // Requête SQL pour insérer un nouvel étudiant
+  //
+  const sql = "INSERT INTO books (`title`, `author`, `year`, `category`, `created_at`) VALUES (?, ?, ?, ?, ?)";//certains ont une erreur avec les deux ? peu etre en mettre qu'un
+
+  // Valeurs à insérer
+  const values = [ 
+    req.body.title, // Titre du livre
+    req.body.author, // Nom de l'auteur
+    req.body.year, // Année de parution
+    req.body.category, // Catégorie du livre
+    req.body.created_at, // Date de création
+  ];
+
+  // Exécution de la requête SQL
+  database.query(sql, values, (err, data) => {
+    // Si une erreur se produit, renvoie un message d'erreur
+    if (err) {
+      console.log('SQL Error:', err);
+      console.log("Erreur de récupération des données :", err);
+      return res.status(500).json({ error: 'Erreur de rejaouter un livre' });
+    }
+    // if(err) return res.json("Error");
+    // Sinon, renvoie les données insérées
+    return res.json(data);
+  })
+})
 
 // Lancer le serveur sur le port 8081
 app.listen(8081, () => {

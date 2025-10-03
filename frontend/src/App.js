@@ -1,6 +1,7 @@
 
 import './App.css';
 import Books from './components/Books';
+import AddBook from './components/AddBook';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 
 function App() {
@@ -18,8 +19,11 @@ function App() {
 
         <Routes>
           <Route path='/' element={<Books />}> </Route>
+          <Route path='/create' element={<AddBook />}> </Route>
         </Routes>
       </Router>
+
+     
     
       </div>
     </div>
