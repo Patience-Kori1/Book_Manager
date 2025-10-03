@@ -2,6 +2,11 @@
   text-align: center;
 }
 
+.buttonsBooks {
+  display:flex;
+  /* gap:1rem */
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
