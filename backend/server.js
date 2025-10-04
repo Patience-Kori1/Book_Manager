@@ -87,6 +87,33 @@ app.post('/create', (req, res) => {
   })
 })
 
+// Route PUT pour modifier un livre existant
+app.put('/update/:id', (req, res) => {
+
+  // Requête SQL pour modifier un étudiant
+  const sql = "update books set `title` =?, `author` =?, `year` =?, `category` =?, `created_at` =?   where id =?";
+
+  // Valeurs à modifier
+  const values = [ 
+    req.body.title, // Titre du livre
+    req.body.author, // Nom de l'auteur
+    req.body.year, // Année de parution
+    req.body.category, // Catégorie du livre
+    req.body.created_at, // Date de création
+  ];
+
+  // ID de l'étudiant à modifier
+  const id = req.params.id; // récupère l'id de l'URL
+
+  // Exécution de la requête SQL
+  database.query(sql, [...values, id], (err, data) => {
+   // Si une erreur se produit, renvoie un message d'erreur
+    if(err) {return res.json("Error")};
+    // Sinon, renvoie les données modifiées
+    return res.json(data);
+  })
+})
+
 // Lancer le serveur sur le port 8081
 app.listen(8081, () => {
   console.log("Je suis un listen et je m'affche en ligne de commande ");

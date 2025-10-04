@@ -24,8 +24,7 @@ function Books() {
                     <th>Parution</th>
                     <th>Catégorie</th>
                     <th>Création</th>
-                    <th>Action</th>
-                    
+                    <th>Action</th>  
                 </tr>
             </thead>
             <tbody>
@@ -38,7 +37,7 @@ function Books() {
                             <td>{data.category}</td>
                             <td>{data.created_at}</td>
                             <td className="buttonsBooks">
-                                <Link to="/update" className='btn btn-primary'> Modifier </Link>
+                                <Link to={`update/${data.id}`} className='btn btn-primary'> Modifier </Link>
                                 <button className='btn btn-danger ms-2'>Supprimer</button>
                             </td>
                         </tr>

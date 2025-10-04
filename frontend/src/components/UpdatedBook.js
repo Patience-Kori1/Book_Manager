@@ -1,11 +1,35 @@
 import React from 'react'
+import axios from 'axios';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
-function UpdatedBook() {
+function UpdateBook () {
+
+    const [title, setTitle] = useState('');
+    const [author, setAuthor] = useState('');
+    const [year, setYear] = useState('');
+    const [category, setCategory] = useState('');
+    const [created_at, setCreated_at] = useState('');
+    const navigate = useNavigate(); 
+    const {id} = useParams();
+
+    // Soumettre les données modifiées
+    function handleSubmit(event) { //handle submit function for the form
+        event.preventDefault(); 
+        axios.put(
+            `http://localhost:8081/update/${id}`, 
+            { title, author, year, category, created_at}) //methode post on create page form
+        .then(res => {
+            console.log('modification réussie:' ,res.data);
+            navigate('/'); // après ajout, retour vers la liste
+        })
+        .catch(err => console.error("Erreur lors de l'update :", err));
+    }
 
     return (
         <div className='d-flex vh-100 bg-primary justify-content-center'>
             <div className='w-100 bg-white rounded p-3'>
-                <form >
+                <form onSubmit={handleSubmit} >
                     <h2 className="h2 mb-5"> Modification du livre </h2>
                     <div className="mb-3 row">
                         <label 
@@ -17,8 +41,8 @@ function UpdatedBook() {
                             <input 
                                 type="text" 
                                 className="form-control" 
-                                // value={title}
-                                // onChange = {e => setTitle(e.target.value)} 
+                                value={title}
+                                onChange = {e => setTitle(e.target.value)} 
                             />
                         </div>
                     </div>
@@ -33,8 +57,8 @@ function UpdatedBook() {
                             <input 
                                 type="text" 
                                 className="form-control" 
-                                // value={author}
-                                // onChange = {e => setAuthor(e.target.value)} 
+                                value={author}
+                                onChange = {e => setAuthor(e.target.value)} 
                             />
                         </div>
                     </div>
@@ -49,8 +73,8 @@ function UpdatedBook() {
                             <input 
                                 type="text" 
                                 className="form-control" 
-                                // value={year}
-                                // onChange = {e => setYear(e.target.value)} 
+                                value={year}
+                                onChange = {e => setYear(e.target.value)} 
                             />
                         </div>
                     </div>
@@ -65,8 +89,8 @@ function UpdatedBook() {
                             <input 
                                 type="text" 
                                 className="form-control" 
-                                // value={category}
-                                // onChange = {e => setCategory(e.target.value)} 
+                                value={category}
+                                onChange = {e => setCategory(e.target.value)} 
                             />
                         </div>
                     </div>
@@ -81,8 +105,8 @@ function UpdatedBook() {
                             <input 
                                 type="date" 
                                 className="form-control" 
-                                // value={created_at}
-                                // onChange = {e => setCreated_at(e.target.value)} 
+                                value={created_at}
+                                onChange = {e => setCreated_at(e.target.value)} 
                             />
                         </div>
                     </div>  
@@ -93,4 +117,4 @@ function UpdatedBook() {
     )
 }
 
-export default UpdatedBook
+export default UpdateBook

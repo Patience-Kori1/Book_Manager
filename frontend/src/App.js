@@ -20,7 +20,7 @@ function App() {
           <Routes>
             <Route path='/' element={<Books />}> </Route>
             <Route path='/create' element={<AddBook />}> </Route>
-            <Route path='/update' element={<UpdatedBook />}> </Route>
+            <Route path='/update/:id' element={<UpdatedBook />}> </Route>
           </Routes>
         </Router>
       </div>
