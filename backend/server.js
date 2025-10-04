@@ -3,9 +3,10 @@ const express = require("express"); //importe Express pour créer un serveur web
 
 const mysql = require("mysql"); //Permet de connecter Node.js à une base de données MySQL et d’exécuter des requêtes SQL. Sans ça tout ce qui concerne mysql ne marcherit pas
 
+const cors = require("cors"); //Gérer le Cross-Origin Resource Sharing, nécessaire pour autoriser le frontend React (port 3000) à faire des requêtes vers le backend Node (port 8081).
+
 const app = express(); //express() crée une instance de serveur qui écoute les requêtes HTTP et permet de définir des routes et middlewares. 1. Définir des routes (app.get(), app.post(), etc.) 2. Utiliser des middlewares (app.use()) 3. Lancer le serveur (app.listen(port))
 
-const cors = require("cors"); //Gérer le Cross-Origin Resource Sharing, nécessaire pour autoriser le frontend React (port 3000) à faire des requêtes vers le backend Node (port 8081).
 
 const corsOptions = {
   origin: [
@@ -57,10 +58,12 @@ app.get("/", (req, res) => {
 
 // Route POST pour créer un étudiant
 app.post('/create', (req, res) => {
-  // Requête SQL pour insérer un nouvel étudiant
-  //
-  const sql = "INSERT INTO books (`title`, `author`, `year`, `category`, `created_at`) VALUES (?, ?, ?, ?, ?)";//certains ont une erreur avec les deux ? peu etre en mettre qu'un
 
+  console.log(req.body); // pour visualiser dans le terminal du backend les données du livre ajouté
+
+  // Requête SQL pour insérer un nouvel étudiant
+  const sql = "INSERT INTO books (`title`, `author`, `year`, `category`, `created_at`) VALUES (?, ?, ?, ?, ?)";
+  
   // Valeurs à insérer
   const values = [ 
     req.body.title, // Titre du livre
@@ -70,7 +73,7 @@ app.post('/create', (req, res) => {
     req.body.created_at, // Date de création
   ];
 
-  // Exécution de la requête SQL
+  // Exécution de la requête SQL, sql c'est la requete, values c'est les valeur à insérer
   database.query(sql, values, (err, data) => {
     // Si une erreur se produit, renvoie un message d'erreur
     if (err) {

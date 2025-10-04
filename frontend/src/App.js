@@ -3,6 +3,7 @@ import './App.css';
 import Books from './components/Books';
 import AddBook from './components/AddBook';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import UpdatedBook from './components/UpdatedBook';
 
 function App() {
   return (
@@ -10,21 +11,18 @@ function App() {
       <div className='container mt-5'>
 
         <Router
-        // Je rajoute cette ligne pour accepter le flag des futurs améliorations
+          // Je rajoute cette ligne pour accepter le flag des futurs améliorations
           future={{
           v7_startTransition: true,
           v7_relativeSplatPath: true,
           }}
         >
-
-        <Routes>
-          <Route path='/' element={<Books />}> </Route>
-          <Route path='/create' element={<AddBook />}> </Route>
-        </Routes>
-      </Router>
-
-     
-    
+          <Routes>
+            <Route path='/' element={<Books />}> </Route>
+            <Route path='/create' element={<AddBook />}> </Route>
+            <Route path='/update' element={<UpdatedBook />}> </Route>
+          </Routes>
+        </Router>
       </div>
     </div>
   );

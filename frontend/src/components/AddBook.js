@@ -14,7 +14,11 @@ function AddBook() {
 
     function handleSubmit(event) { //handle submit function for the form
         event.preventDefault(); 
-        axios.post('http://localhost:8081/create', {title, author, year, category, created_at}) //methode post on create page form
+        axios.post // On envoie les données avec axios en post
+            (
+                'http://localhost:8081/create', 
+                {title, author, year, category, created_at}
+            ) 
         .then(res => {
             console.log('insertion réussi:' ,res.data);
             navigate('/'); // après ajout, retour vers la liste
@@ -27,7 +31,6 @@ function AddBook() {
         <div className='w-100 bg-white rounded p-3'>
             <form onSubmit={handleSubmit} >
                 <h2 className="h2 mb-5">Informations du livre </h2>
-
                 <div className="mb-3 row">
                     <label 
                         htmlFor="title" 
@@ -106,8 +109,7 @@ function AddBook() {
                             onChange = {e => setCreated_at(e.target.value)} 
                         />
                     </div>
-                </div>
-                
+                </div>  
                 <button className='btn btn-success'>Soumettre</button>
             </form>
         </div>
