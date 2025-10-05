@@ -13,6 +13,25 @@ function UpdateBook () {
     const navigate = useNavigate(); 
     const {id} = useParams();
 
+    // Charger les données existantes du livre qu'on veut modifier
+    useEffect
+    (
+        () => {
+            console.log("ID reçu dans UpdateBook:", id);
+            axios.get(`http://localhost:8081/books/${id}`)
+            .then(res => {
+                setTitle(res.data.title);
+                setAuthor(res.data.author);
+                setYear(res.data.year);
+                setCategory(res.data.category);
+                setCreated_at(res.data.created_at);
+            })
+            .catch(err => console.error("Erreur lors du fetch du livre :", err));
+        }, 
+        [id]
+    );
+
+
     // Soumettre les données modifiées
     function handleSubmit(event) { //handle submit function for the form
         event.preventDefault(); 

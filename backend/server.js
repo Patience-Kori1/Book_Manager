@@ -114,6 +114,27 @@ app.put('/update/:id', (req, res) => {
   })
 })
 
+// Route pour récupérer et afficher dans les inputs les données du livre par son ID (propre, avec logs)
+app.get("/books/:id", (req, res) => {
+  const id = req.params.id;
+  console.log(">>> GET /create/:id reçu — id =", id);
+
+  const sql = "SELECT * FROM books WHERE id = ?";
+  database.query(sql, [id], (err, data) => {
+    console.log(`Ceci est mon data:  ${sql}, ${id}` );
+    if (err) {
+      console.error("Erreur SQL :", err);
+      return res.status(500).json({ error: "Erreur serveur", details: err });
+    }
+    if (!data || data.length === 0) {
+      console.warn("Aucun enregistrement trouvé pour id =", id);
+      return res.status(404).json({ error: "Étudiant non trouvé", id });
+    }
+    console.log("Étudiant trouvé:", data[0]);
+    return res.json(data[0]);
+  });
+});
+
 // Lancer le serveur sur le port 8081
 app.listen(8081, () => {
   console.log("Je suis un listen et je m'affche en ligne de commande ");
