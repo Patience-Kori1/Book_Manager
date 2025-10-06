@@ -2,11 +2,8 @@
 const express = require("express"); //importe Express pour créer un serveur web et gérer les routes HTTP facilement.
 
 const mysql = require("mysql"); //Permet de connecter Node.js à une base de données MySQL et d’exécuter des requêtes SQL. Sans ça tout ce qui concerne mysql ne marcherit pas
-
 const cors = require("cors"); //Gérer le Cross-Origin Resource Sharing, nécessaire pour autoriser le frontend React (port 3000) à faire des requêtes vers le backend Node (port 8081).
-
 const multer = require("multer"); //Permet la gestion des fichiers uploadés (images). Il Intercepte et enregistre le fichier dans /uploads
-
 const path = require("path"); //Permet de manipuler les chemins de fichiers
 
 const app = express(); //express() crée une instance de serveur qui écoute les requêtes HTTP et permet de définir des routes et middlewares. 1. Définir des routes (app.get(), app.post(), etc.) 2. Utiliser des middlewares (app.use()) 3. Lancer le serveur (app.listen(port))
@@ -41,6 +38,7 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + path.extname(file.originalname));
   },
 });
+
 const upload = multer({ storage }); // Middleware Multer
 
 // Connexion avec la BDD
@@ -78,6 +76,7 @@ app.get("/", (req, res) => {
 });
 
 // Route POST pour créer un étudiant
+//upload.single("image") ==> Dit à Express de s’attendre à un seul fichier avec le nom image
 app.post('/create', upload.single("image"), (req, res) => {
 
   console.log("Données reçues : ", req.body); // pour visualiser dans le terminal du backend les données du livre ajouté
@@ -110,32 +109,42 @@ app.post('/create', upload.single("image"), (req, res) => {
   })
 })
 
-// Route PUT pour modifier un livre existant
-app.put('/update/:id', (req, res) => {
+//Route PUT : mise à jour d’un livre (avec possibilité de changer l’image)
+//upload.single("image") ==> Dit à Express de s’attendre à un seul fichier avec le nom image
+app.put("/update/:id", upload.single("image"), (req, res) => {
+  const id = req.params.id;
+  console.log("Update livre ID :", id);
 
-  // Requête SQL pour modifier un étudiant
-  const sql = "update books set `title` =?, `author` =?, `year` =?, `category` =?, `created_at` =?   where id =?";
+  // Si une image est envoyée, on la prend, sinon on garde l'ancienne
+  const sql = req.file
+    ? "UPDATE books SET title=?, author=?, year=?, category=?, image=?, created_at=? WHERE id=?"
+    : "UPDATE books SET title=?, author=?, year=?, category=?, created_at=? WHERE id=?";//Dans cette deuxième requete il n'y a pas d'image au cas où le user n'a pas mise à jour l'image
 
-  // Valeurs à modifier
-  const values = [ 
-    req.body.title, // Titre du livre
-    req.body.author, // Nom de l'auteur
-    req.body.year, // Année de parution
-    req.body.category, // Catégorie du livre
-    req.body.created_at, // Date de création
-  ];
+  const values = req.file
+    ? [
+        req.body.title,
+        req.body.author,
+        req.body.year,
+        req.body.category,
+        req.file.filename, //Nouveau nom de fichier
+        req.body.created_at,
+        id,
+      ]
+    : [ //Dans cette deuxième requete il n'y a pas d'image au cas où le user n'a pas mise à jour l'image
+        req.body.title,
+        req.body.author,
+        req.body.year,
+        req.body.category,
+        req.body.created_at,
+        id,
+      ];
 
-  // ID de l'étudiant à modifier
-  const id = req.params.id; // récupère l'id de l'URL
-
-  // Exécution de la requête SQL
-  database.query(sql, [...values, id], (err, data) => {
-   // Si une erreur se produit, renvoie un message d'erreur
-    if(err) {return res.json("Error")};
-    // Sinon, renvoie les données modifiées
+  database.query(sql, values, (err, data) => {
+    if (err) return res.json("Error");
     return res.json(data);
-  })
-})
+  });
+});
+
 
 // Route pour récupérer et afficher dans les inputs les données du livre par son ID (propre, avec logs)
 app.get("/books/:id", (req, res) => {
