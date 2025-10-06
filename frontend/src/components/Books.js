@@ -35,7 +35,7 @@ function Books() {
 
   return (
     <div>
-        <h1 className="h1 ">Notre collection de livres</h1>
+        <h1 className="h1 ">Notre catalogue de livres</h1>
         <Link to="/create" className='btn btn-success mt-4'> Ajouter un livre </Link>
         <table className="table table-bordered mt-5">
             <thead>
@@ -44,6 +44,7 @@ function Books() {
                     <th>Auteur</th>
                     <th>Parution</th>
                     <th>Catégorie</th>
+                    <th>Image</th>
                     <th>Création</th>
                     <th>Action</th>  
                 </tr>
@@ -56,6 +57,15 @@ function Books() {
                             <td>{data.author}</td>
                             <td>{data.year}</td>
                             <td>{data.category}</td>
+                            <td>
+                                {data.image && (
+                                    <img
+                                    src={`http://localhost:8081/uploads/${data.image}`}
+                                    alt="Couverture"
+                                    width="60"
+                                    />
+                                )}
+                            </td>
                             <td>{data.created_at}</td>
                             <td className="buttonsBooks">
                                 <Link to={`update/${data.id}`} className='btn btn-primary'> Modifier </Link>

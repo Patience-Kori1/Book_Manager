@@ -5,6 +5,10 @@ const mysql = require("mysql"); //Permet de connecter Node.js à une base de don
 
 const cors = require("cors"); //Gérer le Cross-Origin Resource Sharing, nécessaire pour autoriser le frontend React (port 3000) à faire des requêtes vers le backend Node (port 8081).
 
+const multer = require("multer"); //Permet la gestion des fichiers uploadés (images). Il Intercepte et enregistre le fichier dans /uploads
+
+const path = require("path"); //Permet de manipuler les chemins de fichiers
+
 const app = express(); //express() crée une instance de serveur qui écoute les requêtes HTTP et permet de définir des routes et middlewares. 1. Définir des routes (app.get(), app.post(), etc.) 2. Utiliser des middlewares (app.use()) 3. Lancer le serveur (app.listen(port))
 
 
@@ -21,6 +25,23 @@ const corsOptions = {
 
 app.use(cors(corsOptions));//pour plus de précision mais app.use(cors());faisable
 app.use(express.json()); // Middleware pour lire le JSON envoyé dans le body
+
+// --- GESTION DES FICHIERS STATIQUES (images) ---
+//Permet à React d'accéder aux fichiers contenus dans /uploads
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// --- CONFIGURATION MULTER POUR LES IMAGES ---
+//On définit l'emplacement de stockage et le nom des fichiers uploadés
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/"); //dossier où les images seront stockées
+  },
+  filename: (req, file, cb) => {
+    // Nom unique du fichier (date + nom d’origine)
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+const upload = multer({ storage }); // Middleware Multer
 
 // Connexion avec la BDD
 const database = mysql.createConnection({//createConnection crée connexion unique à la bdd
@@ -57,12 +78,13 @@ app.get("/", (req, res) => {
 });
 
 // Route POST pour créer un étudiant
-app.post('/create', (req, res) => {
+app.post('/create', upload.single("image"), (req, res) => {
 
-  console.log(req.body); // pour visualiser dans le terminal du backend les données du livre ajouté
+  console.log("Données reçues : ", req.body); // pour visualiser dans le terminal du backend les données du livre ajouté
+  console.log("Image reçue :", req.file); // Pour voir dans le terminal si l'img a été reçu
 
   // Requête SQL pour insérer un nouvel étudiant
-  const sql = "INSERT INTO books (`title`, `author`, `year`, `category`, `created_at`) VALUES (?, ?, ?, ?, ?)";
+  const sql = "INSERT INTO books (`title`, `author`, `year`, `category`, `image`, `created_at`) VALUES (?, ?, ?, ?, ?, ?)";
   
   // Valeurs à insérer
   const values = [ 
@@ -70,6 +92,7 @@ app.post('/create', (req, res) => {
     req.body.author, // Nom de l'auteur
     req.body.year, // Année de parution
     req.body.category, // Catégorie du livre
+    req.file ? req.file.filename : null, // Enregistre juste le nom du fichier
     req.body.created_at, // Date de création
   ];
 

@@ -9,22 +9,34 @@ function AddBook() {
     const [author, setAuthor] = useState('');
     const [year, setYear] = useState('');
     const [category, setCategory] = useState('');
+    const [image, setImage] = useState(null); //Stocke le fichier image sélectionné
     const [created_at, setCreated_at] = useState('');
     const navigate = useNavigate(); 
 
-    function handleSubmit(event) { //handle submit function for the form
-        event.preventDefault(); 
-        axios.post // On envoie les données avec axios en post
-            (
-                'http://localhost:8081/create', 
-                {title, author, year, category, created_at}
-            ) 
-        .then(res => {
-            console.log('insertion réussi:' ,res.data);
-            navigate('/'); // après ajout, retour vers la liste
-        })
-        .catch(err => console.error("Erreur lors de l'ajout :", err));
-    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        // Création d’un objet spéciale FormData de JS pour envoyer des objets avec des contenus binaire : texte + fichier, ce que JSON ne sais pas faire, une fois qu'il y a des fichiers: c'est ce qu'on appelle multipart/FormData()
+        // Indique à Axios et Express que la requête contient un fichier
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("author", author);
+        formData.append("year", year);
+        formData.append("category", category);
+        formData.append("created_at", created_at);
+        formData.append("image", image); // Ajout du fichier image
+
+        try {
+        await axios.post("http://localhost:8081/create", formData, {
+            // l'objet headers est le troisième paramètre officiel de axios  (après l'url et les data) qui souvent contient la configuration, là il indique à axios qu'il lui envoie du cntent de type multipart/form-data parce qu'il y a à la fois du texte et des fichiers mais il est pas forcément obligatoire de le mentionner
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+        navigate("/");
+        } catch (err) {
+        console.error("Erreur lors de l’ajout :", err);
+        }
+  };
 
   return (
     <div className='d-flex vh-100 bg-primary justify-content-center'>
@@ -41,7 +53,7 @@ function AddBook() {
                         <input 
                             type="text" 
                             className="form-control" 
-                            value={title}
+                            // value={title}
                             onChange = {e => setTitle(e.target.value)} 
                         />
                     </div>
@@ -57,7 +69,7 @@ function AddBook() {
                         <input 
                             type="text" 
                             className="form-control" 
-                            value={author}
+                            // value={author}
                             onChange = {e => setAuthor(e.target.value)} 
                         />
                     </div>
@@ -73,7 +85,7 @@ function AddBook() {
                         <input 
                             type="text" 
                             className="form-control" 
-                            value={year}
+                            // value={year}
                             onChange = {e => setYear(e.target.value)} 
                         />
                     </div>
@@ -89,8 +101,24 @@ function AddBook() {
                         <input 
                             type="text" 
                             className="form-control" 
-                            value={category}
+                            // value={category}
                             onChange = {e => setCategory(e.target.value)} 
+                        />
+                    </div>
+                </div>
+
+                <div className="mb-3 row">
+                    <label 
+                        htmlFor="image" 
+                        className="col-sm-2 col-form-label">
+                            Image
+                    </label>
+                    <div className="col-sm-10">
+                        <input 
+                            type="file" 
+                            className="form-control" 
+                            // value={image}
+                            onChange={(e) => setImage(e.target.files[0])} //Stocke le 
                         />
                     </div>
                 </div>
@@ -105,7 +133,7 @@ function AddBook() {
                         <input 
                             type="date" 
                             className="form-control" 
-                            value={created_at}
+                            // value={created_at}
                             onChange = {e => setCreated_at(e.target.value)} 
                         />
                     </div>
