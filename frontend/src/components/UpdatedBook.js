@@ -1,128 +1,151 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
+// -------------------------------------------
+// FRONTEND : UpdateBook.jsx
+// Formulaire de mise à jour (texte + image)
+// -------------------------------------------
 
-function UpdateBook () {
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
 
-    const [title, setTitle] = useState('');
-    const [author, setAuthor] = useState('');
-    const [year, setYear] = useState('');
-    const [category, setCategory] = useState('');
-    const [created_at, setCreated_at] = useState('');
-    const [image, setImage] = useState(null); // 🧩 Fichier sélectionné
-    const [existingImage, setExistingImage] = useState(""); // 🧩 Image actuelle
+function UpdateBook() {
+  // --- États pour les champs du formulaire ---
+  const [title, setTitle] = useState("");
+  const [author, setAuthor] = useState("");
+  const [year, setYear] = useState("");
+  const [category, setCategory] = useState("");
+  const [createdAt, setCreatedAt] = useState("");
+  const [existingImage, setExistingImage] = useState("");
+  const [newImage, setNewImage] = useState(null);
 
-    const navigate = useNavigate(); 
-    const { id } = useParams();
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-    // --- Récupération des données existantes du livre ---
-    useEffect(() => {
-        axios.get(`http://localhost:8081/books/${id}`)
-        .then(res => {
-            setTitle(res.data.title);
-            setAuthor(res.data.author);
-            setYear(res.data.year);
-            setCategory(res.data.category);
-            setCreated_at(res.data.created_at);
-            setExistingImage(res.data.image); // 🧩 sauvegarde de l’image actuelle
-        })
-        .catch(err => console.error("Erreur lors du fetch du livre :", err));
-    }, [id]);
+  // Charger le livre existant pour préremplir le formulaire
+  useEffect(() => {
+    axios
+      .get(`http://localhost:8081/books/${id}`)
+      .then((res) => {
+        const book = res.data;
+        setTitle(book.title);
+        setAuthor(book.author);
+        setYear(book.year);
+        setCategory(book.category);
+        setCreatedAt(book.created_at);
+        setExistingImage(book.image);
+      })
+      .catch((err) => console.error("Erreur lors du chargement du livre :", err));
+  }, [id]);
 
-    // --- Soumission du formulaire ---
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+  // Soumission du formulaire
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        const formData = new FormData();
-        formData.append("title", title);
-        formData.append("author", author);
-        formData.append("year", year);
-        formData.append("category", category);
-        formData.append("created_at", created_at);
-        if (image) formData.append("image", image); // 🧩 uniquement si nouvelle image
+    // Création du FormData pour envoyer texte + fichier
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("author", author);
+    formData.append("year", year);
+    formData.append("category", category);
+    formData.append("created_at", createdAt);
+    if (newImage) formData.append("image", newImage);
 
-        try {
-            await axios.put(`http://localhost:8081/update/${id}`, formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-            });
-            navigate("/");
-        } catch (err) {
-            console.error("Erreur lors de la mise à jour :", err);
-        }
-    };
+    try {
+      await axios.put(`http://localhost:8081/update/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      navigate("/");
+    } catch (err) {
+      console.error("Erreur de mise à jour :", err);
+    }
+  };
 
-    return (
-        <div className='d-flex vh-100 bg-primary justify-content-center'>
-            <div className='w-100 bg-white rounded p-3'>
-                <form onSubmit={handleSubmit}>
-                    <h2 className="h2 mb-5">Modification du livre</h2>
-
-                    {/* --- Titre --- */}
-                    <div className="mb-3 row">
-                        <label className="col-sm-2 col-form-label">Titre</label>
-                        <div className="col-sm-10">
-                            <input type="text" className="form-control" value={title || ''} onChange={e => setTitle(e.target.value)} />
-                        </div>
-                    </div>
-
-                    {/* --- Auteur --- */}
-                    <div className="mb-3 row">
-                        <label className="col-sm-2 col-form-label">Auteur</label>
-                        <div className="col-sm-10">
-                            <input type="text" className="form-control" value={author || ''} onChange={e => setAuthor(e.target.value)} />
-                        </div>
-                    </div>
-
-                    {/* --- Année --- */}
-                    <div className="mb-3 row">
-                        <label className="col-sm-2 col-form-label">Année</label>
-                        <div className="col-sm-10">
-                            <input type="text" className="form-control" value={year || ''} onChange={e => setYear(e.target.value)} />
-                        </div>
-                    </div>
-
-                    {/* --- Catégorie --- */}
-                    <div className="mb-3 row">
-                        <label className="col-sm-2 col-form-label">Catégorie</label>
-                        <div className="col-sm-10">
-                            <input type="text" className="form-control" value={category || ''} onChange={e => setCategory(e.target.value)} />
-                        </div>
-                    </div>
-
-                    {/* --- Image --- */}
-                    <div className="mb-3 row">
-                        <label className="col-sm-2 col-form-label">Image</label>
-                        <div className="col-sm-10">
-                            {existingImage ? (
-                                <div className="mb-2">
-                                    <p>Image actuelle :</p>
-                                    <img
-                                        src={`http://localhost:8081/uploads/${existingImage}`}
-                                        alt="Aperçu"
-                                        width="80"
-                                        className="border rounded"
-                                    />
-                                </div>
-                            ) : (
-                                <p>Aucune image disponible</p>
-                            )}
-                            <input type="file" className="form-control" onChange={(e) => setImage(e.target.files[0])} />
-                        </div>
-                    </div>
-
-                    {/* --- Date --- */}
-                    <div className="mb-3 row">
-                        <label className="col-sm-2 col-form-label">Date</label>
-                        <div className="col-sm-10">
-                            <input type="date" className="form-control" value={created_at || ''} onChange={e => setCreated_at(e.target.value)} />
-                        </div>
-                    </div>
-
-                    <button className='btn btn-success'>Soumettre</button>
-                </form>
-            </div>
+  return (
+    <div className="container mt-5">
+      <h3 className="text-center">Modifier un livre</h3>
+      <form
+        onSubmit={handleSubmit}
+        className="shadow p-4 rounded bg-light col-md-6 mx-auto"
+      >
+        <div className="mb-3">
+          <label className="form-label">Titre</label>
+          <input
+            type="text"
+            className="form-control"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
         </div>
-    );
+
+        <div className="mb-3">
+          <label className="form-label">Auteur</label>
+          <input
+            type="text"
+            className="form-control"
+            value={author}
+            onChange={(e) => setAuthor(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label">Année</label>
+          <input
+            type="text"
+            className="form-control"
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+          />
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label">Catégorie</label>
+          <input
+            type="text"
+            className="form-control"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          />
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label">Date de création</label>
+          <input
+            type="date"
+            className="form-control"
+            value={createdAt}
+            onChange={(e) => setCreatedAt(e.target.value)}
+          />
+        </div>
+
+        {/* Aperçu de l’image existante */}
+        {existingImage && (
+          <div className="mb-3 text-center">
+            <img
+              src={`http://localhost:8081/uploads/${existingImage}`}
+              alt="Actuelle"
+              width="100"
+              className="rounded shadow"
+            />
+          </div>
+        )}
+
+        {/* Upload d’une nouvelle image */}
+        <div className="mb-3">
+          <label className="form-label">Nouvelle image</label>
+          <input
+            type="file"
+            className="form-control"
+            onChange={(e) => setNewImage(e.target.files[0])}
+          />
+        </div>
+
+        <div className="text-center">
+          <button className="btn btn-success">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  );
 }
 
 export default UpdateBook;
